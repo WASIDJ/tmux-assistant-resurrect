@@ -598,7 +598,7 @@ test-agy-e2e:
 
 # Existing account/conversation; independently verifies visible old history.
 test-agy-authenticated resurrect_dir session_id history_text:
-    python3 "{{repo_dir}}/test/agy-live-lifecycle.py" "{{resurrect_dir}}" "{{session_id}}" "{{history_text}}"
+    python3 {{quote(repo_dir + "/test/agy-live-lifecycle.py")}} {{quote(resurrect_dir)}} {{quote(session_id)}} {{quote(history_text)}}
 
 # Run hermetic Grok unit tests (no Docker / no grok binary needed)
 test-grok:
