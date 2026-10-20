@@ -20,4 +20,6 @@ assert_eq 'production awk rejects argument false positives' '' "$(printf '%s\n' 
 assert_eq 'strip selectors, preserve configuration' '--model test --effort high --dangerously-skip-permissions' "$(extract_cli_args agy 'agy --conversation old --continue --new-project --model test --effort high --dangerously-skip-permissions')"
 assert_eq 'do not replay initial prompt' '--model test' "$(extract_cli_args agy 'agy --model test --prompt-interactive do some work --dangerously-skip-permissions')"
 assert_eq 'do not reuse process log' '--model test' "$(extract_cli_args agy 'agy --log-file=/tmp/old.log --model test')"
+assert_eq 'spaced log retains sandbox' '--dangerously-skip-permissions --sandbox --model test' "$(extract_cli_args agy 'agy --dangerously-skip-permissions --log-file=/tmp/My Project/old.log --sandbox --model test')"
+assert_eq 'ordinary value does not promote positional prompt' '--model test' "$(extract_cli_args agy 'agy --model test explain --dangerously-skip-permissions')"
 python3 "$REPO_DIR/test/agy-unit-tests.py"

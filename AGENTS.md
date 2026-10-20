@@ -457,11 +457,20 @@ is an observed logging contract. Do not replace it with newest-by-cwd lookup:
 several agy instances can share the same workspace. `--conversation` in argv
 is the fallback, except when the log explicitly cleared the selection. Initial
 prompts, continue/new-project selectors and the old `--log-file` are not replayed.
+Relative custom logs are matched to open files using the process cwd, never the
+save hook's cwd. Replay strips whole log values before flattening exact Linux
+argv; the macOS fallback consumes the complete flattened value so its trailing
+words cannot truncate later permission flags.
 
 `test/agy-unit-tests.sh` covers both shell/AWK detection and isolated log fixtures.
+`test/agy-e2e.py` runs real agy and tmux with a private home/socket in CI, pins
+actual log ownership, and verifies save/restart/restore routing. Selection
+events are explicitly seeded fixtures, not an authenticated upstream contract.
 `test/agy-live-lifecycle.py` is opt-in and uses a real local account/session on
-its own tmux socket without sending a prompt. Do not call it authenticated
-coverage in CI: only a local run with an existing conversation establishes that.
+its own tmux socket without sending a prompt. It requires a known existing
+history string and a logged redraw, not the production resolver's argv fallback.
+Do not call it authenticated coverage in CI: only a local run with an existing
+conversation establishes that.
 
 ## Adding a new assistant
 

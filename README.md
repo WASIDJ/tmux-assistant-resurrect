@@ -93,10 +93,28 @@ This depends on the observed CLI log messages (`Streaming conversation`,
 `Starting conversation update stream`, and full-redraw events), not a public
 hook API. Changes in agy's logging may require an update. Model, effort and
 permission options are retained; initial prompts and the old process log path
-are not replayed. No launch wrapper or new hook is installed.
+are not replayed. Relative log paths are resolved against the owning process's
+cwd. Linux uses exact argv boundaries and omits whole options whose values
+contain whitespace, which the replay sidecar cannot represent. Other platforms
+use flattened argv; the discarded log path is consumed completely so its tail
+does not truncate subsequent options such as `--sandbox`.
+No launch wrapper or new hook is installed.
 
-Run `bash test/agy-unit-tests.sh` for hermetic detection/selection tests. On a
-machine with agy installed, run `python3 test/agy-live-lifecycle.py /path/to/tmux-resurrect <UUID>` to verify a saved conversation in an isolated tmux server. It uses your current account and conversation store but sends no prompt. The unit fixtures alone do not establish authenticated recovery.
+Testing has three layers:
+
+- `bash test/agy-unit-tests.sh`: detection, selection, argument boundaries and
+  the authenticated test's readiness check, including real `/proc`/`lsof` probes.
+- `python3 test/agy-e2e.py`: real agy processes in two panes sharing a cwd,
+  production save/restore across a tmux restart, and repeated-restore guards.
+  Runs in CI with agy 1.4.3, pinned by SHA256 in `test/install-agy.sh`.
+  No login or prompt is required. Conversation-selection log events are seeded
+  fixtures; this verifies routing, not authenticated conversation recovery.
+- `python3 test/agy-live-lifecycle.py /path/to/tmux-resurrect <UUID> 'known old message'`:
+  opt-in authenticated recovery on a private tmux socket. Uses the current
+  account/store and sends no prompt. It confirms workspace trust only for its
+  own empty temporary directory. Success requires an actual redraw for the
+  requested UUID **and** the supplied existing message visible in the pane,
+  before and after restart. Launch argv alone cannot satisfy this check.
 
 ## Prerequisites
 

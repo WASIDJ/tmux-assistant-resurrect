@@ -592,6 +592,14 @@ test:
 test-agy:
     @"${TEST_BASH:-bash}" "{{repo_dir}}/test/agy-unit-tests.sh"
 
+# Real agy + tmux, private socket/home; seeded logs, no account needed.
+test-agy-e2e:
+    python3 "{{repo_dir}}/test/agy-e2e.py"
+
+# Existing account/conversation; independently verifies visible old history.
+test-agy-authenticated resurrect_dir session_id history_text:
+    python3 "{{repo_dir}}/test/agy-live-lifecycle.py" "{{resurrect_dir}}" "{{session_id}}" "{{history_text}}"
+
 # Run hermetic Grok unit tests (no Docker / no grok binary needed)
 test-grok:
     @"${TEST_BASH:-bash}" "{{repo_dir}}/test/grok-unit-tests.sh"

@@ -1112,7 +1112,7 @@ get_grok_session() {
 # agy keeps the selected conversation in its own process log, including
 # in-TUI switches. Never select the newest conversation by working directory.
 get_agy_session() {
-	python3 "$PY_DIR/agy_session.py" "$1" "$2"
+	python3 "$PY_DIR/agy_session.py" "$1" "$2" "${3:-}"
 }
 
 register_codex_session_id() {
@@ -2258,8 +2258,7 @@ extract_cli_args() {
 	# agy's Go-style help omits value placeholders. Drop prompt/print modes
 	# before replay, and let each restored process choose a new log file.
 	if [ "$tool" = "agy" ]; then
-		args=$(echo "$args" | sed -E 's/(^| )(--prompt-interactive|--prompt|--print|-i|-p)([= ].*)?$//')
-		args=$(_strip_long_opt '--log-file' "$args")
+		args=$(python3 "$PY_DIR/agy_session.py" --replay "$pid" "$raw_args" "$(_discover_option_value_flags agy)")
 	fi
 
 	# Strip tool-specific session/resume flags.
@@ -2401,7 +2400,7 @@ resolve_pane_candidates() {
 			codex) session_id=$(get_codex_session "$cand_pid" "$cand_args" "$pane_cwd" || true) ;;
 			pi) session_id=$(get_pi_session "$cand_pid" "$cand_args" "$pane_cwd" || true) ;;
 			omp) session_id=$(get_omp_session "$cand_pid" "$cand_args" "$pane_cwd" "$pane_tty" || true) ;;
-			agy) session_id=$(get_agy_session "$cand_pid" "$cand_args" || true) ;;
+			agy) session_id=$(get_agy_session "$cand_pid" "$cand_args" "$pane_cwd" || true) ;;
 			grok) session_id=$(get_grok_session "$cand_pid" "$cand_args" || true) ;;
 			esac
 
@@ -2918,7 +2917,7 @@ emit_session() {
 	codex) session_id=$(get_codex_session "$cpid" "$cargs" "$cwd" || true) ;;
 	pi) session_id=$(get_pi_session "$cpid" "$cargs" "$cwd" || true) ;;
 	omp) session_id=$(get_omp_session "$cpid" "$cargs" "$cwd" "" || true) ;;
-	agy) session_id=$(get_agy_session "$cpid" "$cargs" || true) ;;
+	agy) session_id=$(get_agy_session "$cpid" "$cargs" "$cwd" || true) ;;
 	grok) session_id=$(get_grok_session "$cpid" "$cargs" || true) ;;
 	esac
 
